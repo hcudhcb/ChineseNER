@@ -31,25 +31,33 @@ def data2pkl():
             labels.append(linelabel)
 
     input_data.close()
-    print len(datas),tags
-    print len(labels)
-    from compiler.ast import flatten
+    print(len(datas),tags)
+    print(len(labels))
+    import collections
+    def flatten(x):
+        result = []
+        for el in x:
+            if isinstance(x, collections.Iterable) and not isinstance(el, str):
+                result.extend(flatten(el))
+            else:
+                result.append(el)
+        return result
     all_words = flatten(datas)
     sr_allwords = pd.Series(all_words)
     sr_allwords = sr_allwords.value_counts()
     set_words = sr_allwords.index
-    set_ids = range(1, len(set_words)+1)
+    set_ids = list(range(1, len(set_words)+1))
 
 
     tags = [i for i in tags]
-    tag_ids = range(len(tags))
+    tag_ids = list(range(len(tags)))
     word2id = pd.Series(set_ids, index=set_words)
     id2word = pd.Series(set_words, index=set_ids)
     tag2id = pd.Series(tag_ids, index=tags)
     id2tag = pd.Series(tags, index=tag_ids)
 
     word2id["unknow"] = len(word2id)+1
-    print word2id
+    print(word2id)
     max_len = 60
     def X_padding(words):
         ids = list(word2id[words])
@@ -64,7 +72,7 @@ def data2pkl():
             return ids[:max_len]
         ids.extend([0]*(max_len-len(ids))) 
         return ids
-    df_data = pd.DataFrame({'words': datas, 'tags': labels}, index=range(len(datas)))
+    df_data = pd.DataFrame({'words': datas, 'tags': labels}, index=list(range(len(datas))))
     df_data['x'] = df_data['words'].apply(X_padding)
     df_data['y'] = df_data['tags'].apply(y_padding)
     x = np.asarray(list(df_data['x'].values))
@@ -88,7 +96,7 @@ def data2pkl():
 	    pickle.dump(y_test, outp)
 	    pickle.dump(x_valid, outp)
 	    pickle.dump(y_valid, outp)
-    print '** Finished saving the data.'
+    print('** Finished saving the data.')
     
     
     
@@ -123,7 +131,7 @@ def origin2tag():
 def tagsplit():
     with open('./wordtag.txt','rb') as inp:
 	    texts = inp.read().decode('utf-8')
-    sentences = re.split('[，。！？、‘’“”（）]/[O]'.decode('utf-8'), texts)
+    sentences = re.split('[，。！？、‘’“”（）]/[O]'.encode('utf-8').decode('utf-8'), texts)
     output_data = codecs.open('./wordtagsplit.txt','w','utf-8')
     for sentence in sentences:
 	    if sentence != " ":

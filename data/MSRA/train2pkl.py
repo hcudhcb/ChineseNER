@@ -88,15 +88,23 @@ for line in input_data.readlines():
             labels.append(linelabel)
             
 input_data.close()    
-print len(datas)
-print len(labels)
+print(len(datas))
+print(len(labels))
     
-from compiler.ast import flatten
+import collections
+def flatten(x):
+    result = []
+    for el in x:
+        if isinstance(x, collections.Iterable) and not isinstance(el, str):
+            result.extend(flatten(el))
+        else:
+            result.append(el)
+    return result
 all_words = flatten(datas)
 sr_allwords = pd.Series(all_words)
 sr_allwords = sr_allwords.value_counts()
 set_words = sr_allwords.index
-set_ids = range(1, len(set_words)+1)    
+set_ids = list(range(1, len(set_words)+1))    
 word2id = pd.Series(set_ids, index=set_words)
 id2word = pd.Series(set_words, index=set_ids)
 
@@ -119,7 +127,7 @@ def y_padding(ids):
     ids.extend([0]*(max_len-len(ids))) # 短则补全
     return ids
 
-df_data = pd.DataFrame({'words': datas, 'tags': labels}, index=range(len(datas)))
+df_data = pd.DataFrame({'words': datas, 'tags': labels}, index=list(range(len(datas))))
 df_data['x'] = df_data['words'].apply(X_padding)
 df_data['y'] = df_data['tags'].apply(y_padding)
 x = np.asarray(list(df_data['x'].values))
@@ -130,7 +138,7 @@ x_train,x_test, y_train, y_test = train_test_split(x, y, test_size=0.1, random_s
 x_train, x_valid, y_train, y_valid = train_test_split(x_train, y_train,  test_size=0.2, random_state=43)
 
 
-print 'Finished creating the data generator.'
+print('Finished creating the data generator.')
 import pickle
 import os
 with open('../dataMSRA.pkl', 'wb') as outp:
@@ -144,6 +152,6 @@ with open('../dataMSRA.pkl', 'wb') as outp:
 	pickle.dump(y_test, outp)
 	pickle.dump(x_valid, outp)
 	pickle.dump(y_valid, outp)
-print '** Finished saving the data.'
+print('** Finished saving the data.')
 
 
