@@ -58,6 +58,7 @@ def data2pkl():
 
     word2id["unknow"] = len(word2id)+1
     print(word2id)
+    print(tag2id)
     max_len = 60
     def X_padding(words):
         ids = list(word2id[words])
@@ -77,6 +78,8 @@ def data2pkl():
     df_data['y'] = df_data['tags'].apply(y_padding)
     x = np.asarray(list(df_data['x'].values))
     y = np.asarray(list(df_data['y'].values))
+    print(x)
+    print(y)
 
     from sklearn.model_selection import train_test_split
     x_train,x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=43)

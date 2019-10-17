@@ -68,7 +68,7 @@ id2tag = {0:'' ,
 
 input_data = codecs.open('wordtag.txt','r','utf-8')
 for line in input_data.readlines():
-    line=re.split('[，。；！：？、‘’“”]/[o]'.decode('utf-8'),line.strip())
+    line=re.split('[，。；！：？、‘’“”]/[o]'.encode('utf-8').decode('utf-8'),line.strip())
     for sen in line:
         sen = sen.strip().split()
         if len(sen)==0:
